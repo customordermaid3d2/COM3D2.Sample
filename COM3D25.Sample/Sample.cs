@@ -33,18 +33,20 @@ namespace COM3D2.Sample
 
         private void OnGUI()
         {
+            // UI창. 이거 없이 OnGUI 에서 WindowFunction 내용을 직접 구현해도 됨
             rect = GUILayout.Window(winNum, rect, WindowFunction, "Sample");
         }
 
         private void WindowFunction(int id)
         {
-            GUI.enabled = true;
+            GUI.enabled = true; // 하위 GUI활성 가능. 커튼 클릭가능 같은것
+            ;// 세로 스크롤 시작
             scrollPosition = GUILayout.BeginScrollView(scrollPosition);
             if (GUILayout.Button("test"))
             {
                 Logger.LogMessage("test");
             }
-            GUILayout.EndScrollView();
+            GUILayout.EndScrollView();// 세로 스크롤 끝
             GUI.DragWindow(); // 창을 잡고 이동 가능            
         }
     }
