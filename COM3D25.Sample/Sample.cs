@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using COM3D2API;
 using HarmonyLib;
@@ -33,6 +34,12 @@ namespace COM3D2.Sample
         Harmony harmony;
         public static ManualLogSource log;
 
+        private static ConfigEntry<bool> isBool;
+        private static ConfigEntry<int> select;
+
+        int selectGrid;
+        string[] selectGridString = new string[] {"1","2","3","4" };
+
         private void Awake()
         {
             log = Logger;
@@ -44,10 +51,14 @@ namespace COM3D2.Sample
                 MyAttribute.PLAGIN_FULL_NAME,
                 MyAttribute.PLAGIN_NAME,
                 "SPL", // 최소화시 타이틀명
-                ho: 100
+                ho: 200
                 );
 
             harmony = Harmony.CreateAndPatchAll(typeof(SamplePatch));
+
+            isBool = Config.Bind("GUI", "isBool", false);
+            select = Config.Bind("GUI", "select", 2);
+            selectGrid = select.Value;
         }
 
         private void Start()
@@ -64,6 +75,9 @@ namespace COM3D2.Sample
 
         private void OnGUI()
         {
+            if (!windowRect.IsGUIOn) // 지난 강좌에서 깜빡하고 빼먹은
+                return;
+
             // UI창. 이거 없이 OnGUI 에서 WindowFunction 내용을 직접 구현해도 됨
             windowRect.WindowRect = GUILayout.Window(
                 windowRect.winNum, windowRect.WindowRect, WindowFunction, "", GUI.skin.box);
@@ -90,11 +104,19 @@ namespace COM3D2.Sample
             {   // 최대화시
                 // 세로 스크롤 시작
                 scrollPosition = GUILayout.BeginScrollView(scrollPosition);
-                if (GUILayout.Button("test1")){Logger.LogMessage("test1");}
-                GUI.enabled = false;
-                if (GUILayout.Button("test2")){Logger.LogMessage("test2");}
-                GUI.enabled = true;
-                if (GUILayout.Button("test3")){Logger.LogMessage("test3");}
+
+                if (GUILayout.Button($"test1 {isBool.Value}")){
+                    isBool.Value = !isBool.Value;
+                    Logger.LogMessage($"test1 {isBool.Value}");
+                }
+
+                selectGrid = GUILayout.SelectionGrid(selectGrid, selectGridString, 4);
+                if (GUI.changed)
+                {
+                    select.Value = selectGrid;
+                    Logger.LogMessage($"test2 {selectGrid} {selectGridString[selectGrid]}");
+                }
+
                 GUILayout.EndScrollView();// 세로 스크롤 끝
             }
             GUI.enabled = true;
