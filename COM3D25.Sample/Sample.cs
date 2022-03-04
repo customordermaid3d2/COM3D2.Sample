@@ -1,4 +1,6 @@
 ﻿using BepInEx;
+using BepInEx.Logging;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,10 +27,16 @@ namespace COM3D2.Sample
         private int winNum=10;
         private Vector2 scrollPosition;
 
+        Harmony harmony;
+        public static ManualLogSource log;
+
         private void Awake()
         {
+            log = Logger;
             Logger.LogMessage("Awake");
             rect = new Rect(10, 10, 100, 300);
+
+            harmony = Harmony.CreateAndPatchAll(typeof(SamplePatch));
         }
 
         private void OnGUI()
